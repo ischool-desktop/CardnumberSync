@@ -20,7 +20,8 @@ namespace DSASync
         {
             Success = 0,
             InsufficientArguments = 1,
-            UnableToObtainAccessToken = 2
+            UnableToObtainAccessToken = 2,
+            UnableToGetXML = 3
         }
 
         static void Main(string[] args)
@@ -41,7 +42,6 @@ namespace DSASync
 
             // Auth 認證，取得 Access Token
             string accessToken = "";
-
             try
             {
                 accessToken = ObtainAccessToken(clientID, clientSecret, refreshToken);
@@ -52,34 +52,39 @@ namespace DSASync
                 Exit(ExitCode.UnableToObtainAccessToken);
             }
 
-            Console.WriteLine(accessToken);
-
             // 呼叫 DSA，取得學生清冊
             // 清冊內容包括: StudentID, StudentNumber, ClassName, SeatNo, Name, CardNumber
-            string cardNoXmlString;
+            string cardNoXmlString = "";
             #region 呼叫DSA
             {
-                string urlString = $"https://dsns.ischool.com.tw/test.h.hwsh.tc.edu.tw/CardnumberSync/GetCardNo?stt=PassportAccessToken&AccessToken={accessToken}";
+                try
+                {
+                    string urlString = $"https://dsns.ischool.com.tw/test.h.hwsh.tc.edu.tw/CardnumberSync/GetCardNo?stt=PassportAccessToken&AccessToken={accessToken}";
 
-                // 準備 Http request
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(urlString);
-                req.Method = "GET";
-                req.Accept = "*/*";
-                req.ContentType = "application/xml";
-                req.ContentLength = 0;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+                    // 準備 Http request
+                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(urlString);
+                    req.Method = "GET";
+                    req.Accept = "*/*";
+                    req.ContentType = "application/xml";
+                    req.ContentLength = 0;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
 
-                // 呼叫並取得結果
-                HttpWebResponse rsp;
-                rsp = (HttpWebResponse)req.GetResponse();
-                Stream dataStream = rsp.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-                cardNoXmlString = reader.ReadToEnd();
-                reader.Close();
-                dataStream.Close();
-                rsp.Close();
+                    // 呼叫並取得結果
+                    HttpWebResponse rsp;
+                    rsp = (HttpWebResponse)req.GetResponse();
+                    Stream dataStream = rsp.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    cardNoXmlString = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                    rsp.Close();
 
-                //Console.WriteLine(cardNoXmlString);
+                }
+                catch (Exception e)
+                {
+                    StdOut("Uable to get xml from DSA service: " + e.ToString());
+                    Exit(ExitCode.UnableToGetXML);
+                }
             }
             #endregion
 
@@ -160,7 +165,7 @@ namespace DSASync
             dataStream.Close();
             rsp.Close();
 
-            Console.WriteLine(result);
+            //Console.WriteLine(result);
 
             // 解析 JSON
             byte[] byteArray = Encoding.UTF8.GetBytes(result);
