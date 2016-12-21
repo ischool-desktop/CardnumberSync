@@ -1,0 +1,6 @@
+c:\users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\bin\Debug\DSASync.exe.config
+C:\Users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\bin\Debug\DSASync.exe
+C:\Users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\bin\Debug\DSASync.pdb
+C:\Users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\obj\Debug\DSASync.csprojResolveAssemblyReference.cache
+C:\Users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\obj\Debug\DSASync.exe
+C:\Users\bill_\documents\visual studio 2015\Projects\DSASync\DSASync\obj\Debug\DSASync.pdb
