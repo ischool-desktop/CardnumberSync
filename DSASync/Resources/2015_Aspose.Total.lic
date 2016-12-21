@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<License>
+  <Data>
+    <LicensedTo>Intellischool</LicensedTo>
+    <LicenseType>Developer OEM</LicenseType>
+    <LicenseNote>Limited to 1 developer.</LicenseNote>
+    <OrderID>110225003926</OrderID>
+    <OEM>This is a redistributable license</OEM>
+    <Products>
+      <Product>Aspose.Total for .NET</Product>
+    </Products>
+    <EditionType>Enterprise</EditionType>
+    <SerialNumber>dfab68d4-e5b8-4ad7-ba01-08d446ca0cd2</SerialNumber>
+    <SubscriptionExpiry>20150213</SubscriptionExpiry>
+    <LicenseVersion>2.2</LicenseVersion>
+  </Data>
+  <Signature>jCTz6AF/f+Kme7y5WzR5J5/KAXGN2J/tcrOfJHiD3/I3CR0NveN6CqQlrV4dCMTZKPtlCbgQJRHBHXcggL1ISFq+z3gePBNNsRPhe/X2W3oPG2n75m+0GFJHvMEw08TwWG9PsIIG0AOLc/udJAQsTmwd6/ZWAZ8USjnqzN6sSoI=</Signature>
+</License>

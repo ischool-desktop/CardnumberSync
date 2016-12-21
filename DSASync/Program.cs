@@ -9,6 +9,8 @@ using System.Net;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+using System.Xml;
+using Aspose.Cells;
 
 namespace DSASync
 {
@@ -43,7 +45,8 @@ namespace DSASync
             try
             {
                 accessToken = ObtainAccessToken(clientID, clientSecret, refreshToken);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 StdOut("Uable to obtain access token: " + e.ToString());
                 Exit(ExitCode.UnableToObtainAccessToken);
@@ -53,10 +56,71 @@ namespace DSASync
 
             // 呼叫 DSA，取得學生清冊
             // 清冊內容包括: StudentID, StudentNumber, ClassName, SeatNo, Name, CardNumber
+            string cardNoXmlString;
+            #region 呼叫DSA
+            {
+                string urlString = $"https://dsns.ischool.com.tw/test.h.hwsh.tc.edu.tw/CardnumberSync/GetCardNo?stt=PassportAccessToken&AccessToken={accessToken}";
 
+                // 準備 Http request
+                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(urlString);
+                req.Method = "GET";
+                req.Accept = "*/*";
+                req.ContentType = "application/xml";
+                req.ContentLength = 0;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+
+                // 呼叫並取得結果
+                HttpWebResponse rsp;
+                rsp = (HttpWebResponse)req.GetResponse();
+                Stream dataStream = rsp.GetResponseStream();
+                StreamReader reader = new StreamReader(dataStream);
+                cardNoXmlString = reader.ReadToEnd();
+                reader.Close();
+                dataStream.Close();
+                rsp.Close();
+
+                //Console.WriteLine(cardNoXmlString);
+            }
+            #endregion
 
             // 解析 XML 並輸出 CSV
+            new Aspose.Cells.License().SetLicense(new MemoryStream(Properties.Resources._2015_Aspose_Total));
+            Workbook wb = new Workbook();
+            wb.Worksheets.Clear();
+            wb.Worksheets.Add();
+            #region ParseXML
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(cardNoXmlString);
 
+
+                int rowIndex = 0;
+                int cellIndex = 0;
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("StudentID");
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("StudentNumber");
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("ClassName");
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("SeatNo");
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("Name");
+                wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue("CardNumber");
+
+                foreach (XmlElement studentEle in doc.SelectNodes("Body/Student"))
+                {
+                    rowIndex++;
+                    cellIndex = 0;
+
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("StudentID").InnerText);
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("StudentNumber").InnerText);
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("ClassName").InnerText);
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("SeatNo").InnerText);
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("Name").InnerText);
+                    wb.Worksheets[0].Cells[rowIndex, cellIndex++].PutValue(studentEle.SelectSingleNode("CardNo").InnerText);
+                }
+
+            }
+            wb.Settings.Encoding = Encoding.UTF8;
+            wb.Save(outputFileName, SaveFormat.CSV);
+
+            #endregion
 
             Exit(ExitCode.Success);
         }
@@ -73,13 +137,13 @@ namespace DSASync
 
         static string ObtainAccessToken(string clientID, string clientSecret, string refreshToken)
         {
-            const string AuthRequestBase = "https://auth1.ischool.com.tw/oauth/token.php";
+            const string AuthRequestBase = "https://auth.ischool.com.tw/oauth/token.php";
             const string AuthGrantType = "grant_type=refresh_token";
 
             string urlString = $"{AuthRequestBase}?{AuthGrantType}&client_id={clientID}&client_secret={clientSecret}&refresh_token={refreshToken}";
 
             // 準備 Http request
-            HttpWebRequest req = (HttpWebRequest) HttpWebRequest.Create(urlString);
+            HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(urlString);
             req.Method = "GET";
             req.Accept = "*/*";
             req.ContentType = "application/json";
@@ -88,7 +152,7 @@ namespace DSASync
 
             // 呼叫並取得結果
             HttpWebResponse rsp;
-            rsp = (HttpWebResponse) req.GetResponse();
+            rsp = (HttpWebResponse)req.GetResponse();
             Stream dataStream = rsp.GetResponseStream();
             StreamReader reader = new StreamReader(dataStream);
             string result = reader.ReadToEnd();
