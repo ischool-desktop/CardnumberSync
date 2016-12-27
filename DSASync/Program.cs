@@ -59,7 +59,7 @@ namespace DSASync
             {
                 try
                 {
-                    string urlString = $"https://dsns.ischool.com.tw/test.h.hwsh.tc.edu.tw/CardnumberSync/GetCardNo?stt=PassportAccessToken&AccessToken={accessToken}";
+                    string urlString = $"https://dsns.ischool.com.tw/{dsnsName}/CardnumberSync/GetCardNo?stt=PassportAccessToken&AccessToken={accessToken}";
 
                     // 準備 Http request
                     HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(urlString);
